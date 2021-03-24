@@ -1,16 +1,22 @@
 package com.rest.api.sample;
 
 import com.rest.api.sample.model.Product;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -57,31 +63,8 @@ class SampleApplicationTests {
 
 
 	@Test
+	@Sql("classpath:insert-test-data.sql")
 	void getAllProducts() {
-		//save 3 products
-		with()
-				.body(p)
-				.header("Content-Type","application/json" )
-				.header("Accept","application/json" )
-				.when()
-				.request("POST", "/products");
-
-		p.setCategory("Keyboard");
-		with()
-				.body(p)
-				.header("Content-Type","application/json" )
-				.header("Accept","application/json" )
-				.when()
-				.request("POST", "/products");
-
-		p.setAvailability(false);
-		with()
-				.body(p)
-				.header("Content-Type","application/json" )
-				.header("Accept","application/json" )
-				.when()
-				.request("POST", "/products");
-
 		//test that getList without parameters will return list of 3
 		when().get("/products/")
 				.then()
@@ -109,5 +92,17 @@ class SampleApplicationTests {
 				.contentType(JSON)
 				.assertThat()
 				.body("size()",is(1));
+	}
+
+	@Test
+	void createProduct() {
+		RequestSpecification request = given();
+		request.header("content-type", MediaType.APPLICATION_JSON_VALUE);
+		request.body(new Product());
+		Response response = request.post("/products").andReturn();
+		assertEquals(HttpStatus.CREATED.value(), response.getStatusCode());
+//		response.body()
+//		String location = response.getHeader("location");
+//		assertTrue(String.format("%s should end with /contacts/5", location), location.endsWith("/contacts/5"));
 	}
 }
