@@ -1,11 +1,14 @@
 package com.rest.api.sample;
 
+import com.rest.api.sample.helper.JsonReader;
 import com.rest.api.sample.model.Product;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,7 +17,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -35,35 +37,27 @@ class SampleApplicationTests {
 	}
 
 	@Test
-	void addOneProduct() {
-		with()
-				.body(p)
-				.header("Content-Type","application/json" )
-				.header("Accept","application/json" )
-				.when()
-				.request("POST", "/products")
-				.then()
-				.contentType(JSON)
-				.statusCode(201)
-				.assertThat()
-				.body("name", equalTo(p.getName()));
+	@Order(1)
+	void addOneProduct() throws Exception {
+		RequestSpecification request = given();
+		request.header("content-type", MediaType.APPLICATION_JSON_VALUE);
+		request.body(p);
+		Response response = request.post("/products").andReturn();
+		assertEquals(HttpStatus.CREATED.value(), response.getStatusCode());
 
 		p.setId(1L);
+		request.body(p);
 
-		with()
-				.body(p)
-				.header("Content-Type","application/json" )
-				.header("Accept","application/json" )
-				.when()
-				.request("POST", "/products")
-				.then()
-				.contentType(JSON)
-				.statusCode(400);
+		JSONAssert.assertEquals(JsonReader.read("product-1.json"),response.getBody().asString(),true);
+
+		response = request.post("/products").andReturn();
+		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode());
 	}
 
 
 	@Test
 	@Sql("classpath:insert-test-data.sql")
+	@Order(2)
 	void getAllProducts() {
 		//test that getList without parameters will return list of 3
 		when().get("/products/")
@@ -92,17 +86,5 @@ class SampleApplicationTests {
 				.contentType(JSON)
 				.assertThat()
 				.body("size()",is(1));
-	}
-
-	@Test
-	void createProduct() {
-		RequestSpecification request = given();
-		request.header("content-type", MediaType.APPLICATION_JSON_VALUE);
-		request.body(new Product());
-		Response response = request.post("/products").andReturn();
-		assertEquals(HttpStatus.CREATED.value(), response.getStatusCode());
-//		response.body()
-//		String location = response.getHeader("location");
-//		assertTrue(String.format("%s should end with /contacts/5", location), location.endsWith("/contacts/5"));
 	}
 }

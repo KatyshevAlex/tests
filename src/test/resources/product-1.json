@@ -1,0 +1,8 @@
+{
+  "id":1,
+  "name":"M-50",
+  "category":"Mouse",
+  "availability":true,
+  "retail_price":10.5,
+  "discounted_price":null
+}
