@@ -4,7 +4,7 @@ package com.rest.api.sample.service.implementations;
 import com.rest.api.sample.model.Product;
 import com.rest.api.sample.repository.ProductRepo;
 import com.rest.api.sample.service.IMainService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class MainService implements IMainService {
 
-    @Autowired
     ProductRepo repository;
 
     @Override

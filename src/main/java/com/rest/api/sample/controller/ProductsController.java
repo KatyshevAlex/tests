@@ -3,7 +3,7 @@ package com.rest.api.sample.controller;
 
 import com.rest.api.sample.model.Product;
 import com.rest.api.sample.service.IMainService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +14,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/products")
+@AllArgsConstructor
 public class ProductsController {
 
-    @Autowired
     IMainService service;
 
     @PostMapping()

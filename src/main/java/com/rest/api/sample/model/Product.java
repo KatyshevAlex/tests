@@ -2,6 +2,7 @@ package com.rest.api.sample.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.math.RoundingMode;
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "products")
 @SequenceGenerator(name = "sq_products", sequenceName = "sq_products", allocationSize = 1)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
